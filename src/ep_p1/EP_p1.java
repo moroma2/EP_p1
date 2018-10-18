@@ -45,7 +45,8 @@ public class EP_p1 {
         System.out.println("4-Listar todos los objetos");
         System.out.println("5-Baja de objeto");
         System.out.println("6-Mostrar saldos");
-        System.out.println("7-Salir");
+        System.out.println("7-Modificar importe diario de alquiler");
+        System.out.println("8-Salir");
         System.out.println("-----------------------------");
     }
     
@@ -124,6 +125,12 @@ public class EP_p1 {
                             System.out.println("Registre al menos un usuario.");
                         break;
                     case 7:
+                        if(arrayItems.size()>0)
+                            modificarImporte();
+                        else
+                            System.out.println("Registre al menos un objeto.");
+                        break;
+                    case 8:
                         System.out.println("-- SALIDA --");
                         break;
                     default:
@@ -133,7 +140,7 @@ public class EP_p1 {
             else{
                 System.out.println("-- ERROR: Introduzca un valor valido --");
             }
-        }while(num != 7);
+        }while(num != 8);
         
     }
     
@@ -337,13 +344,15 @@ public class EP_p1 {
         
         boolean tiene_items = false;
 
+        System.out.println("-----------------------------");
         for(Item item : arrayItems){
             if(item.getId_owner() == id_userX){
                 System.out.println(item);
                 tiene_items = true;
             }
         }
-        
+        System.out.println("-----------------------------");
+
         return tiene_items;
     }
     
@@ -603,5 +612,34 @@ public class EP_p1 {
         }
         
         return tiene_prestamo;
+    }
+    public static void modificarImporte(){
+        float costs_item;
+        int id_itemS = 0;
+        
+        mostrarUsers();
+        System.out.println("Introduzca el número de usuario: ");
+        Scanner f1 = new Scanner(System.in);
+        int id_userS = f1.nextInt();
+        
+        if(mostrarItemsUser(id_userS)){
+            System.out.println("Introduzca el número de objeto: ");
+            Scanner f4 = new Scanner(System.in);
+            id_itemS = f4.nextInt();
+        }
+        
+        if(comprobarUser(id_userS) && mostrarItemsUser(id_userS)){
+            System.out.println("Introduzca el nuevo importe diario: ");
+            Scanner f5 = new Scanner(System.in);
+            costs_item = f5.nextFloat();
+            for(Item item : arrayItems){
+                if(item.id_item == id_itemS){
+                    item.setCosts(costs_item);
+                }
+            }
+        }
+        else{
+            System.out.println("ERROR. El usuario introducido no existe o no tiene objetos asociados. ");
+        }
     }
 }
