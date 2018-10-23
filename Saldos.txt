@@ -1,0 +1,13 @@
+PROPIETARIO 1
+Nombre del propietario: moroma
+Correo Electronico: moroma@gmail.com
+
+	 	 PRESTAMOS DEL OBJETO 1
+
+	 	 Nombre del cliente: moroma
+	 	 Fecha del prestamo: 01/01/2000 - 03/01/2000
+	 	 Importe del prestamo: 200.0
+	 	 Importe del startup: 20.0
+
+Importe total acumulado para la startup: 20.0 euros. 
+

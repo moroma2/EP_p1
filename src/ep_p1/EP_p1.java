@@ -1,5 +1,10 @@
 package ep_p1;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -46,7 +51,8 @@ public class EP_p1 {
         System.out.println("5-Baja de objeto");
         System.out.println("6-Mostrar saldos");
         System.out.println("7-Modificar importe diario de alquiler");
-        System.out.println("8-Salir");
+        System.out.println("8-Guardar en un fichero todos los saldos");
+        System.out.println("9-Salir");
         System.out.println("-----------------------------");
     }
     
@@ -131,6 +137,14 @@ public class EP_p1 {
                             System.out.println("Registre al menos un objeto.");
                         break;
                     case 8:
+                        if(arrayUsers.size()>0){
+                            guardarSaldosFichero();
+                            System.out.println("--Fichero 'Saldos.txt' creado-- ");
+                        }
+                        else
+                            System.out.println("Registre al menos un usuario.");
+                        break;
+                    case 9:
                         System.out.println("-- SALIDA --");
                         break;
                     default:
@@ -140,7 +154,7 @@ public class EP_p1 {
             else{
                 System.out.println("-- ERROR: Introduzca un valor valido --");
             }
-        }while(num != 8);
+        }while(num != 9);
         
     }
     
@@ -567,6 +581,59 @@ public class EP_p1 {
     }
     
     /**
+     * Guarda los saldos de los propietarios con objetos alquilados
+     * en un fichero de texto
+     */
+    public static void guardarSaldosFichero(){
+        
+        int loans;
+        String file_name = "Saldos.txt";
+        
+        FileWriter fw = null;
+        
+        try{
+            fw = new FileWriter(file_name);
+            BufferedWriter bw = new BufferedWriter(fw);
+            PrintWriter f = new PrintWriter(bw);
+            
+            for(User user : arrayUsers){
+                if(tienePrestamo(user.getId_user())) {
+                    float total_startup = 0;
+                    f.println(user);
+
+                    for(Item item : arrayItems){
+                        loans = 0;
+                        if(item.getId_owner() == user.getId_user()){
+                            f.println("\t \t PRESTAMOS DEL OBJETO " + item.getId_item() + "\n");
+                            
+                            for(Loan loan : arrayLoans){
+                                if(loan.getId_item() == item.getId_item()){
+                                    f.println(loan);
+                                    loans++;
+                                    total_startup += loan.getStartup();
+                                }
+                            }
+                            if(loans == 0){
+                                f.println("\t \t El objeto " + item.getId_item() + " no tiene prestamos asociados. \n");
+                            }
+                        }
+                    }
+                    if(total_startup > 0) {
+                        f.println("\nImporte total acumulado para la startup: " + total_startup + " euros. \n");
+                    }
+                }   
+            }
+            
+            f.close();
+            
+        }
+        catch (IOException ex){    
+        }
+        
+        
+    }
+    
+    /**
      * Da de baja un objeto de un propietario
      */
     public static void BajaItem(){
@@ -613,6 +680,10 @@ public class EP_p1 {
         
         return tiene_prestamo;
     }
+    
+    /**
+     * Modifica el importe de un objeto en alquiler
+     */
     public static void modificarImporte(){
         float costs_item;
         int id_itemS = 0;
