@@ -8,6 +8,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Scanner;
 import java.util.regex.Matcher;
@@ -24,6 +25,7 @@ public class EP_p1 {
     static ArrayList<User> arrayUsers = new ArrayList();
     static ArrayList<Item> arrayItems = new ArrayList();
     static ArrayList<Loan> arrayLoans = new ArrayList();
+    
     static int id_user = 1;
     static int id_item = 1;
     
@@ -52,7 +54,8 @@ public class EP_p1 {
         System.out.println("7-Modificar importe diario de alquiler");
         System.out.println("8-Guardar en un fichero todos los saldos");
         System.out.println("9-Eliminar usuario");
-        System.out.println("10-Salir");
+        System.out.println("10-Listar más asiduos");
+        System.out.println("11-Salir");
         System.out.println("-----------------------------");
     }
     
@@ -159,6 +162,13 @@ public class EP_p1 {
                             System.out.println("Registre al menos un usuario.");
                         break;
                     case 10:
+                        if(arrayUsers.size()>0){
+                            listarAsiduos();
+                        }
+                        else
+                            System.out.println("Registre al menos un usuario.");
+                        break;
+                    case 11:
                         System.out.println("-- SALIDA --");
                         break;
                     default:
@@ -168,7 +178,7 @@ public class EP_p1 {
             else{
                 System.out.println("-- ERROR: Introduzca un valor valido --");
             }
-        }while(num != 10);
+        }while(num != 11);
         
     }
     
@@ -185,8 +195,20 @@ public class EP_p1 {
         Scanner f2 = new Scanner(System.in);
         String email = f2.nextLine();
         
+        System.out.println("Introduzca la direccion completa del usuario: ");
+        Scanner f3 = new Scanner(System.in);
+        String direccion = f3.nextLine();
+        
+        System.out.println("Introduzca la poblacion del usuario: ");
+        Scanner f4 = new Scanner(System.in);
+        String poblacion = f4.nextLine();
+        
+        System.out.println("Introduzca la provincia del usuario: ");
+        Scanner f5 = new Scanner(System.in);
+        String provincia = f5.nextLine();
+        
         if(validarEmail(email)){
-            User user = new User(id_user, name, email);
+            User user = new User(id_user, name, email, direccion, poblacion, provincia);
             arrayUsers.add(user);
             System.out.println("-- USUARIO CON ID " + id_user + " CREADO CORRECTAMENTE --");
             id_user++;
@@ -217,8 +239,7 @@ public class EP_p1 {
                 if(arrayLoans.get(j).getUser().getId_user() == id_userX){
                     arrayLoans.remove(j);
                 }
-            }
-                
+            }  
         }
         else{
             System.out.println("ERROR. El usuario introducido no existe. ");
@@ -332,7 +353,7 @@ public class EP_p1 {
                     userOK = user;
                 }
             }
-            
+
             for(Item item : arrayItems){
                 if(item.id_item == id_itemS){
                     date_ini_item = item.getIni_date();
@@ -367,10 +388,12 @@ public class EP_p1 {
             }while(!fechaOK);
 
             total_costs = calculaCosts(date_ini, date_fin, costs_item);
+            userOK.incrementar(total_costs);
             startup = (total_costs * 10) / 100;
 
             Loan loan = new Loan(userOK, id_itemS, date_ini, date_fin, total_costs, startup);
             arrayLoans.add(loan);
+            
             System.out.println("------ CREADO ------");
             System.out.println(loan);
         }
@@ -444,6 +467,11 @@ public class EP_p1 {
         return existe;
     }
     
+    /**
+     * Comprueba si el usuario tiene objetos
+     * @param id_userX El usuario a comprobar
+     * @return Si el usuario tiene objetos o no
+     */
     public static boolean tieneItems(int id_userX){
         
         boolean tiene_items = false;
@@ -688,12 +716,11 @@ public class EP_p1 {
         }
         catch (IOException ex){    
         }
-        
-        
     }
     
     /**
      * Pide por pantalla el número ID de un usuario
+     * 
      * @return El ID del usuario 
      */
     public static int pedirIdUser(){
@@ -707,6 +734,7 @@ public class EP_p1 {
     
     /**
      * Da de baja un objeto de un propietario
+     * 
      * @param id_userS
      */
     public static void bajaItem(int id_userS){
@@ -727,6 +755,11 @@ public class EP_p1 {
         }
     }  
     
+    /**
+     * Elimina todos los objetos de la lista de un usuario
+     * 
+     * @param id_userS El usuario para eliminar sus objetos
+     */
     public static void bajaTodosItems(int id_userS){
                 
         for(int i = 0; i < arrayItems.size(); i++){
@@ -741,6 +774,7 @@ public class EP_p1 {
      * @return Si tiene algún objeto prestado o no
      */
     public static boolean tienePrestamo(int id_userX) {
+        
         boolean tiene_prestamo = false;
         
         for(int i = 0; i < arrayItems.size() && !tiene_prestamo; i++) {
@@ -757,9 +791,31 @@ public class EP_p1 {
     }
     
     /**
+     * Lista los usuarios que más se han gastado en alquilar
+     * objetos. Lista los usuarios de mayor a menor importe
+     * total.
+     */
+    public static void listarAsiduos(){
+        
+        ArrayList<User> usersAlquiler = new ArrayList();
+        
+        for(int i = 0; i < arrayUsers.size(); i++){
+            if(arrayUsers.get(i).getTotal_alquiler() > 0){
+                usersAlquiler.add(arrayUsers.get(i));
+            }
+        }
+        
+        Collections.sort(usersAlquiler);
+        for(int j = 0; j < usersAlquiler.size(); j++){
+            System.out.println(usersAlquiler.get(j));
+        }
+    }
+    
+    /**
      * Modifica el importe de un objeto en alquiler
      */
     public static void modificarImporte(){
+        
         float costs_item;
         int id_itemS = 0;
         
@@ -787,5 +843,5 @@ public class EP_p1 {
         else{
             System.out.println("ERROR. El usuario introducido no existe o no tiene objetos asociados. ");
         }
-    }
+    }   
 }
