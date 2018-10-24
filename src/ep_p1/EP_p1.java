@@ -1,7 +1,6 @@
 package ep_p1;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -52,7 +51,8 @@ public class EP_p1 {
         System.out.println("6-Mostrar saldos");
         System.out.println("7-Modificar importe diario de alquiler");
         System.out.println("8-Guardar en un fichero todos los saldos");
-        System.out.println("9-Salir");
+        System.out.println("9-Eliminar usuario");
+        System.out.println("10-Salir");
         System.out.println("-----------------------------");
     }
     
@@ -85,6 +85,7 @@ public class EP_p1 {
     public static void selectMenu() throws ParseException{
         
         int num = 0;
+        int idUserX = 0;
         
         do
         {
@@ -119,8 +120,11 @@ public class EP_p1 {
                             System.out.println("Registre al menos un usuario.");
                         break;
                     case 5:
-                        if(arrayItems.size()>0)
-                            BajaItem();
+                        if(arrayItems.size()>0){
+                            mostrarUsers();
+                            idUserX = pedirIdUser();
+                            bajaItem(idUserX);
+                        }
                         else
                             System.out.println("Registre al menos un objeto.");
                         break;
@@ -145,6 +149,16 @@ public class EP_p1 {
                             System.out.println("Registre al menos un usuario.");
                         break;
                     case 9:
+                        if(arrayUsers.size()>0){
+                            mostrarUsers();
+                            idUserX = pedirIdUser();
+                            bajaUser(idUserX);
+                            System.out.println("Usuario con ID: " + idUserX + " eliminado. " );
+                        }
+                        else
+                            System.out.println("Registre al menos un usuario.");
+                        break;
+                    case 10:
                         System.out.println("-- SALIDA --");
                         break;
                     default:
@@ -154,7 +168,7 @@ public class EP_p1 {
             else{
                 System.out.println("-- ERROR: Introduzca un valor valido --");
             }
-        }while(num != 9);
+        }while(num != 10);
         
     }
     
@@ -180,6 +194,35 @@ public class EP_p1 {
         else{
             System.out.println("ERROR. Email no válido. ");
         }        
+    }
+    
+    /**
+     * Elimina un usuario del programa de todas las listas
+     * @param id_userX El usuario a eliminar
+     */
+    public static void bajaUser(int id_userX){
+        
+        if(comprobarUser(id_userX)){
+            for(int i = 0; i < arrayUsers.size(); i++){
+                if(arrayUsers.get(i).getId_user() == id_userX){
+                    arrayUsers.remove(i);
+                }
+            }
+            
+            if(tieneItems(id_userX))
+                bajaTodosItems(id_userX);
+            
+            
+            for(int j = 0; j < arrayLoans.size(); j++){
+                if(arrayLoans.get(j).getUser().getId_user() == id_userX){
+                    arrayLoans.remove(j);
+                }
+            }
+                
+        }
+        else{
+            System.out.println("ERROR. El usuario introducido no existe. ");
+        }
     }
     
     /**
@@ -399,6 +442,22 @@ public class EP_p1 {
         }
             
         return existe;
+    }
+    
+    public static boolean tieneItems(int id_userX){
+        
+        boolean tiene_items = false;
+        
+        for(int i = 0; i < arrayUsers.size() && !tiene_items; i++) {
+            if(arrayUsers.get(i).getId_user() == id_userX){
+                for(int j = 0; j < arrayItems.size() && !tiene_items; j++){
+                    if(arrayItems.get(i).getId_owner() == id_userX)
+                        tiene_items = true;
+                }
+            }            
+        }
+        
+        return tiene_items;
     }
     
     /**
@@ -634,15 +693,24 @@ public class EP_p1 {
     }
     
     /**
-     * Da de baja un objeto de un propietario
+     * Pide por pantalla el número ID de un usuario
+     * @return El ID del usuario 
      */
-    public static void BajaItem(){
-        
-        mostrarUsers();
-        System.out.println("Introduzca el número de propietario: ");
+    public static int pedirIdUser(){
+                
+        System.out.println("Introduzca el número de usuario: ");
         Scanner f1 = new Scanner(System.in);
-        int id_userS = f1.nextInt();
+        int id = f1.nextInt();
         
+        return id;
+    }
+    
+    /**
+     * Da de baja un objeto de un propietario
+     * @param id_userS
+     */
+    public static void bajaItem(int id_userS){
+                
         if((mostrarItemsUser(id_userS))){
             System.out.println("Introduzca el número de objeto: ");
             Scanner f2 = new Scanner(System.in);
@@ -658,6 +726,13 @@ public class EP_p1 {
             System.out.println("\t El propietario " + id_userS + " no tiene objetos asociados");
         }
     }  
+    
+    public static void bajaTodosItems(int id_userS){
+                
+        for(int i = 0; i < arrayItems.size(); i++){
+                arrayItems.remove(i);
+        }
+    }
     
     /**
      * Comprueba si el usuario tiene algún objeto prestado
